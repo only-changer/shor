@@ -2,7 +2,7 @@
 using Microsoft.Quantum.Simulation.Simulators;
 using System;
 
-namespace Quantum.Bell
+namespace Quantum.test
 {
     class Driver
     {

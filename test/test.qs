@@ -1,4 +1,4 @@
-﻿namespace Quantum.Bell
+﻿namespace Quantum.test
 {
     open Microsoft.Quantum.Primitive;
     open Microsoft.Quantum.Canon;
@@ -59,6 +59,24 @@
 			}
 		}
 	}
+	operation inAdder(a : Qubit[] , b : Qubit[] , c : Qubit[] , d : Qubit) :()
+	{
+		body
+		{
+			for (i in 0..3)
+			{
+				Sum(c[i] , a[i] , b[i]);
+				Carry(c[i] , a[i] , b[i] , c[i + 1]);
+			}
+			Sum(c[4] , a[4] , b[4]);	
+			CNOT(a[4] , b[4]);
+			inCarry(c[4] , a[4] , b[4] , d);
+			for (i in 0..3)
+			{
+				inCarry(c[3 - i] , a[3 - i] , b[3 - i] , c[4 - i]);
+			}
+		}
+	}
 	operation Add_Mod (a : Qubit[] , b : Qubit[] , n : Qubit[]) : ()
 	{
 		body
@@ -71,6 +89,7 @@
 				}	
 				using (d = Qubit[1])
 				{
+					Set(Zero , d[0]);
 					using (v = Qubit[1])
 					{
 						Set(Zero , v[0]);
@@ -104,37 +123,23 @@
 			}
 		}
 	}
-	operation inAdder(a : Qubit[] , b : Qubit[] , c : Qubit[] , d : Qubit) :()
-	{
-		body
-		{
-			for (i in 0..3)
-			{
-				Sum(c[i] , a[i] , b[i]);
-				Carry(c[i] , a[i] , b[i] , c[i + 1]);
-			}
-			Sum(c[4] , a[4] , b[4]);	
-			CNOT(a[4] , b[4]);
-			inCarry(c[4] , a[4] , b[4] , d);
-			for (i in 0..3)
-			{
-				inCarry(c[3 - i] , a[3 - i] , b[3 - i] , c[4 - i]);
-			}
-		}
-	}
 	operation test() : (Result)
 	{
 		body
 		{
 			mutable s = Zero;
-			mutable sa = Zero;
-			mutable sb = Zero;
 			using (a = Qubit[5])
 			{
-				Set(One , a[4]);
-				Set(Zero , a[0]);
+				for (i in 0..4)
+				{
+					Set(Zero, a[i]);
+				}	
 				using (b = Qubit[5])
 				{
+					for (i in 0..4)
+					{
+						Set(Zero, b[i]);
+					}	
 					Set(One , b[0]);
 					using (n = Qubit[5])
 					{
