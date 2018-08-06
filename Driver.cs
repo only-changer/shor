@@ -2,9 +2,7 @@
 using Microsoft.Quantum.Simulation.Simulators;
 using System;
 
-// Full credit to this awesome blog post I used http://algassert.com/post/1718
-
-namespace Quantum.ShorQsharp
+namespace Quantum.shor
 {
     class Driver
     {
@@ -12,22 +10,29 @@ namespace Quantum.ShorQsharp
 
         static void Main(string[] args)
         {
-            int factorme = 30;  //note: trying to factor 21 takes abt 10 minutes per attempt on my PC.
-
+            Console.WriteLine("请输入你要分解的数...");
+            int factorme = Convert.ToInt32(Console.ReadLine());
             using (var sim = new QuantumSimulator())
             {
+                int cnt = 0;
                 while (true)
                 {
+                    ++cnt;
+
                     var testradix = ChooseRandomCoprime(factorme);
 
                     Console.WriteLine("Starting Quantum Routine: radix = {0}, modulus = {1}", testradix, factorme);
-                    long res = SamplePeriod.Run(sim, testradix, factorme).Result;
+                    long res = shor.Run(sim, testradix, factorme).Result;
                     Console.WriteLine("Result {0}", res);
                     if ((res != 1) && (res != factorme - 1) && (res * res % factorme == 1))
                     {
                         Console.WriteLine("Factors Found: {0} x {1} = {2}", Gcd(res + 1, factorme), factorme / Gcd(res + 1, factorme), factorme);
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
+                        break;
+                    }
+
+                    if (cnt > factorme)
+                    {
+                        Console.WriteLine("未发现因子，该数可能为质数...");
                         break;
                     }
                 } 

@@ -1,10 +1,12 @@
-﻿namespace Quantum.ShorQsharp
+﻿namespace Quantum.shor
 {
     open Microsoft.Quantum.Primitive;
     open Microsoft.Quantum.Canon;
-	//open Microsoft.Quantum.Canon.ModularMultiplyByConstantLE;
+	open Microsoft.Quantum.Extensions.Testing;
     open Microsoft.Quantum.Extensions.Math;
-	//using System;
+
+	newtype Um = ((Int, Qubit[]) => ():Adjoint,Controlled);
+
 	function Expmod(radix : Int , cleanedPeriod : Int ,modulus : Int):(Int)
 	{
             mutable x = radix;
@@ -22,28 +24,51 @@
             }
             return ans;
     }
-	operation SamplePeriod (radix: Int, modulus: Int ) : (Int)
-    {
-        body
-        {
-			mutable measuredPeriod = 0;
-			let registersize = 2*BitSize(modulus)+1;
 
-			using ( targetState = Qubit[BitSize(modulus)] )
+	operation myQFT ( qs: BigEndian) : () 
+	{
+        body 
+		{
+            let n= Length(qs);
+            for (i in 0 .. (n - 1) ) 
 			{
-				using ( controlRegister = Qubit[registersize] )
+                for (j in 0..(i-1)) 
 				{
-					IntegerIncrementLE( 1 , LittleEndian(targetState) );
-					QuantumPhaseEstimation( DiscreteOracle(PowerOracle(radix,modulus,_,_)) , LittleEndian(targetState) , BigEndian(controlRegister) );
-					set measuredPeriod = MeasureIntegerBE( BigEndian(controlRegister) );
-					ResetAll(targetState);
-				}
+                    if ( (i-j) < n ) 
+					{
+                        (Controlled R1Frac)( [qs[i]], (1, i - j, qs[j]) );
+                    }
+                }
+                H(qs[i]);
+            }
+            SwapReverseRegister(qs);
+        }
+        adjoint auto
+        controlled auto
+        controlled adjoint auto
+    }
+
+	 operation QPE( oracle : Um,  targetState : Qubit[], controlRegister : BigEndian) : ()
+    {
+        body 
+		{
+            let n = Length(controlRegister);
+			for (i in 0..(n - 1))
+			{
+				H(controlRegister[i]);
 			}
+            for (idxControlQubit in 0..(n - 1)) 
+			{
+                let control = controlRegister[idxControlQubit];
+                let power = 2 ^ (n - idxControlQubit - 1);
+                (Controlled oracle)([control], (power, targetState));
+            }
 
-		    let cleanedPeriod = AbsI(Snd( ContinuedFractionConvergent( Fraction(measuredPeriod, 2^(registersize)) , modulus ) )) ;			
-
-			return Expmod(radix, cleanedPeriod/2 , modulus ); 
-		}
+            (Adjoint myQFT)(controlRegister);
+        }
+		adjoint auto
+		controlled auto
+		controlled adjoint auto
     }
 
 	operation PowerOracle (radix: Int, modulus: Int, power: Int, target: Qubit[]) : ()
@@ -56,4 +81,26 @@
 		controlled auto
 		adjoint controlled auto
 	}
+
+	operation shor(radix: Int, modulus: Int ) : (Int)
+    {
+        body
+        {
+			mutable measuredPeriod = 0;
+			let registersize = 2*BitSize(modulus)+1;
+
+			using ( targetState = Qubit[BitSize(modulus)] )
+			{
+				using ( controlRegister = Qubit[registersize] )
+				{
+					IntegerIncrementLE( 1 , LittleEndian(targetState) );
+					QPE(Um(PowerOracle(radix,modulus,_,_)) , LittleEndian(targetState) , BigEndian(controlRegister) );
+					set measuredPeriod = MeasureIntegerBE( BigEndian(controlRegister) );
+					ResetAll(targetState);
+				}
+			}
+		    let cleanedPeriod = AbsI(Snd( ContinuedFractionConvergent( Fraction(measuredPeriod, 2^(registersize)) , modulus ) )) ;			
+			return Expmod(radix, cleanedPeriod/2 , modulus ); 
+		}
+    }
 }
