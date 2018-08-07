@@ -10,7 +10,7 @@ namespace Quantum.shor
 
         static void Main(string[] args)
         {
-            Console.WriteLine("请输入你要分解的数...");
+            Console.WriteLine("Please enter the number you want to fact...");
             int factorme = Convert.ToInt32(Console.ReadLine());
             using (var sim = new QuantumSimulator())
             {
@@ -32,12 +32,11 @@ namespace Quantum.shor
 
                     if (cnt > factorme)
                     {
-                        Console.WriteLine("未发现因子，该数可能为质数...");
                         break;
                     }
                 } 
             }
-            Console.WriteLine("按任意键继续...");
+            Console.WriteLine("Finished...");
             Console.ReadKey();
         }
 
