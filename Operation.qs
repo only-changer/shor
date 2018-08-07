@@ -8,7 +8,7 @@
 
 	operation Set (desired: Result, q1: Qubit) : ()
     {
-		//This fucntion is used to flip the qubit,if it is not equal to the expected.
+		//This operation is used to flip the qubit,if it is not equal to the expected.
         body
         {
             let current = M(q1);
@@ -22,16 +22,17 @@
 
 	operation Sum (a1 : Qubit , a2 : Qubit , a3 : Qubit) : ()
 	{
-		//This function is used for sum.
+		//This operation is used for sum.
 		body
 		{
 			CNOT(a2 , a3);
 			CNOT(a1 , a3);
 		}
 	}
+
 	operation Carry(a1 : Qubit , a2 : Qubit , a3 : Qubit , a4 : Qubit) : ()
 	{
-		//This function is used for carry.
+		//This operation is used for carry.
 		body
 		{
 			CCNOT(a2 , a3 , a4);
@@ -39,9 +40,10 @@
 			CCNOT(a1 , a3 , a4);
 		}
 	}
+
 	operation inCarry(a1 : Qubit , a2 : Qubit , a3 : Qubit , a4 : Qubit) : ()
 	{
-		//This function is an inverse function of Carry.
+		//This operation is an inverse operation of Carry.
 		body
 		{
 			CCNOT(a1 , a3 , a4);	
@@ -49,9 +51,10 @@
 			CCNOT(a2 , a3 , a4);
 		}
 	}
+
 	operation Adder(a : Qubit[] , b : Qubit[] , c : Qubit[] , d : Qubit) :()
 	{
-		//This function returns the result of (a + b).
+		//This operation returns the result of (a + b).
 		//d is used for carry.
 		body
 		{
@@ -69,9 +72,10 @@
 			}
 		}
 	}
+
 	operation inAdder(a : Qubit[] , b : Qubit[] , c : Qubit[] , d : Qubit) :()
 	{
-		//This function is an inverse function of Adder
+		//This operation is an inverse operation of Adder
 		body
 		{
 			for (i in 0..3)
@@ -88,9 +92,10 @@
 			}
 		}
 	}
+
 	operation Add_Mod (a : Qubit[] , b : Qubit[] , n : Qubit[]) : ()
 	{
-		//This function returns the result of (a + b) mod n
+		//This operation returns the result of (a + b) mod n
 		body
 		{
 			using (c = Qubit[5])
@@ -209,7 +214,7 @@
 
 	operation PowerOracle (radix: Int, modulus: Int, power: Int, target: Qubit[]) : ()
 	{
-		//This function is used for denoting modulus by N and constMultiplier by a then this operation implements a unitary 
+		//This operation is used for denoting modulus by N and constMultiplier by a then this operation implements a unitary 
 		//defined by the following map on computational basis: |y⟩ ↦ |a⋅y (mod N) ⟩, for all y between 0 and N - 1
 		body
 		{
@@ -222,7 +227,7 @@
 
 	operation shor(radix: Int, modulus: Int ) : (Int)
     {
-		//This is the core function , which achieves the shor's algorithm
+		//This is the core operation , which achieves the shor's algorithm
         body
         {
 			mutable measuredPeriod = 0;
